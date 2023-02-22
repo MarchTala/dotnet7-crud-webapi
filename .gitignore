@@ -8,6 +8,7 @@ project.lock.json
 
 # Visual Studio Code
 .vscode
+.env
 
 # User-specific files
 *.suo
@@ -29,6 +30,7 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+migrations/
 
 # Visual Studio 2015
 .vs/
