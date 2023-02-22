@@ -1,4 +1,5 @@
 using DotNetEnv;
+using FormulaApi.Core;
 using FormulaApi.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,6 +43,8 @@ builder.Services.AddDbContext<ApiDbContext>(
       Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.30-mysql")
    )
 );
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 

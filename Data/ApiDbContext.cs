@@ -9,7 +9,7 @@ namespace FormulaApi.Data
 {
    public class ApiDbContext : DbContext
    {
-      public DbSet<Driver> Drivers { get; set; }
+      public DbSet<Driver>? Drivers { get; set; }
 
       public ApiDbContext(DbContextOptions options) : base(options)
       {

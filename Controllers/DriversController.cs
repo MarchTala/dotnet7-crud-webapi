@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using FormulaApi.Core;
 using FormulaApi.Data;
 using FormulaApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -15,24 +16,24 @@ namespace FormulaApi.Controllers
    [Route("[controller]")]
    public class DriversController : ControllerBase
    {
-      private readonly ApiDbContext _context;
+      private readonly IUnitOfWork _unitOfWork;
 
-      public DriversController(ApiDbContext context)
+      public DriversController(IUnitOfWork unitOfWork)
       {
-         _context = context;
+         _unitOfWork = unitOfWork;
       }
 
       [HttpGet]
       public async Task<IActionResult> Get()
       {
-         return Ok(await _context.Drivers.ToListAsync());
+         return Ok(await _unitOfWork.Drivers.All());
       }
 
       [HttpGet]
       [Route("GetById")]
       public async Task<IActionResult> Get(int id)
       {
-         var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == id);
+         var driver = await _unitOfWork.Drivers.GetById(id);
          if(driver == null) return NotFound();
 
          return Ok(driver);
@@ -42,9 +43,8 @@ namespace FormulaApi.Controllers
       [Route("AddDriver")]
       public async Task<IActionResult> AddDriver(Driver driver)
       {
-         _context.Drivers.Add(driver);
-      
-         await _context.SaveChangesAsync();
+         await _unitOfWork.Drivers.Add(driver);
+         await _unitOfWork.CompleteAsync();
          return Ok();
       }
 
@@ -52,11 +52,11 @@ namespace FormulaApi.Controllers
       [Route("DeleteDriver")]
       public async Task<IActionResult> DeleteDriver(int id)
       {
-         var driver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == id);
+         var driver = await _unitOfWork.Drivers.GetById(id);
          if (driver == null) return NotFound();
 
-         _context.Drivers.Remove(driver);
-         await _context.SaveChangesAsync();
+         await _unitOfWork.Drivers.Delete(driver);
+         await _unitOfWork.CompleteAsync();
          return NoContent();
       }
 
@@ -64,18 +64,13 @@ namespace FormulaApi.Controllers
       [Route("UpdateDriver")]
       public async Task<IActionResult> UpdateDriver(Driver driver)
       {
-         var existDriver = await _context.Drivers.FirstOrDefaultAsync(x => x.Id == driver.Id);
+         var existDriver = await _unitOfWork.Drivers.GetById(driver.Id);
          if (existDriver == null) return NotFound();
 
-         existDriver.Name = driver.Name;
-         existDriver.Team = driver.Team;
-         existDriver.DriverNumber = driver.DriverNumber;
-
-         await _context.SaveChangesAsync();
+         await _unitOfWork.Drivers.Update(driver);
+         await _unitOfWork.CompleteAsync();
 
          return NoContent();
-      }
-      
-            
+      }      
    }
 }
